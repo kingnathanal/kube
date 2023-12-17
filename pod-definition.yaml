@@ -1,0 +1,21 @@
+# create yaml definition for kubernetes pod
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-1
+  labels:
+    app: nginx
+spec:
+  containers:
+    - name: nginx-container
+      image: a218876dt9musea2crglobal.azurecr.io/nginx
+#     command: ["sleep2.0"]
+#     args: ["10"] 
+#     env:
+#       - name: APP_COLOR
+#         value: pink
+#     securityContext:
+#       runAsUser: 1010
+#       capabilities:
+#         add: ["SYS_TIME"]
+#  serviceAccountName: myapp-serviceaccount

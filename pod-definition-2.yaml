@@ -1,0 +1,19 @@
+# create yaml definition for kubernetes pod
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-resource
+  labels:
+    app: myapp-resource
+    type: front-end
+spec:
+  containers:
+    - name: nginx-container
+      image: nginx
+      resources:
+        requests:
+          cpu: 1
+          memory: 2Mi
+        limits:
+          cpu: 2
+          memory: 4Mi

@@ -1,0 +1,21 @@
+# Create a Replication Controller, named myapp-rc, with 3 replicas
+# ReplicaSets should be used instead of Replication Controllers
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: myapp-rc
+  labels:
+    app: myapp
+    type: front-end
+spec:
+  template:
+    metadata:
+      name: myapp-podrc
+      labels:
+        app: myapp
+        type: front-end
+    spec:
+      containers:
+        - name: nginx-container
+          image: nginx
+  replicas: 3
