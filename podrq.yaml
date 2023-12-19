@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: podrq
+  name: podrq
+spec:
+  containers:
+  - image: nginx
+    name: podrq
+    resources:
+      requests:
+        memory: "200m"
+        cpu: "500m"
+      limits:
+        memory: "500m"
+        cpu: "500m"
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}

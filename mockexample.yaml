@@ -1,0 +1,178 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: log-volume
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/opt/volume/nginx"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: log-claim
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 200Mi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: logger
+spec:
+  volumes:
+    - name: log-volume
+      persistentVolumeClaim:
+        claimName: log-claim
+  containers:
+    - name: logger
+      image: nginx
+      volumeMounts:
+        - mountPath: "/var/www/nginx"
+          name: log-volume
+---
+## Question 2
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: access-network
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - {}
+  egress:
+    - {}
+---
+## Question 2 - Idea Solution
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: access-network
+spec:
+ podSelector: 
+  matchLabels:
+    run: secure-pod
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            run: access-pod
+      ports:
+      - protocol: TCP
+        port: 80 
+---
+apiVersion: v1
+data:
+  TIME_FREQ: "10"
+kind: ConfigMap
+metadata:
+  name: time-config
+  namespace: dvl1987
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: time-check
+  name: time-check
+  namespace: dvl1987
+spec:
+  volumes:
+  - name: log-volume
+    emptyDir: {}
+  containers:
+  - image: busybox
+    name: time-check
+    resources: {}
+    env:
+    - name: TIME_FREQ
+      valueFrom:
+            configMapKeyRef:
+              name: time-config
+              key: TIME_FREQ
+    volumeMounts:
+    - mountPath: /opt/time
+      name: log-volume
+    command:
+    - "/bin/sh"
+    - "-c"
+    - "while true; do date; sleep $TIME_FREQ;done > /opt/time/time-check.log"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nginx-deploy
+  name: nginx-deploy
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: nginx-deploy
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 2
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: nginx-deploy
+    spec:
+      containers:
+      - image: nginx:1.17
+        name: nginx
+        resources: {}
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: redis
+  name: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: red-config
+          configMap:
+            name: redis-config
+      containers:
+      - image: redis:alpine
+        name: redis
+        ports:
+          - name: http-port
+            containerPort: 6379
+        volumeMounts:
+          - name: data
+            mountPath: /redis-master-data
+          - name: red-config
+            mountPath: /redis-master
+        resources:
+          requests:
+            cpu: .2
+status: {}

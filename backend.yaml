@@ -2,13 +2,16 @@ apiVersion: v1
 kind: Pod
 metadata:
   labels:
-    run: ngnix
-  name: ngnix
+    run: backend
+  name: backend
 spec:
   containers:
   - image: nginx
-    name: ngnix
+    name: backend
+    envFrom:
+    - secretRef:
+        name: db-credentials
     resources: {}
   dnsPolicy: ClusterFirst
-  restartPolicy: Never
+  restartPolicy: Always
 status: {}

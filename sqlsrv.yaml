@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: sqlsrv
+  name: sqlsrv
+spec:
+  containers:
+  - image: nginx
+    name: sqlsrv
+    resources: {}
+    envFrom:
+    - configMapRef:
+        name: db-config

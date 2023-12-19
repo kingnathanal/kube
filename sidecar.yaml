@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: sidecar2
+  name: sidecar2
+spec:
+  containers:
+  - image: nginx
+    name: sidecar2
+    resources: {}
+    command:
+      - 'sh'
+      - '-c'
+      - 'while true; do echo "helloworld" >> /opt/helloworld.txt; sleep 1; done'
+    volumeMounts:
+      - name: data
+        mountPath: /opt
+  initContainers:
+  - image: busybox
+    name: secondary
+    restartPolicy: Always
+    resources: {}
+    command:
+      - 'sh'
+      - '-c'
+      - 'tail -F /opt/helloworld.txt'
+    volumeMounts:
+      - name: data
+        mountPath: /opt
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+  volumes:
+    - name: data
+      emptyDir: {}
+status: {}
