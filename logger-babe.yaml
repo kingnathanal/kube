@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: logger-babe
+  labels:
+    name: logger-babe
+spec:
+  containers:
+  - name: logger-babe
+    image: nginx:alpine
+    #command: ['sh', '-c', 'curl http://spring-basics.default:9080/'] # default.svc.cluster.local
+    resources:
+      limits:
+        memory: "128Mi"
+        cpu: "250m"

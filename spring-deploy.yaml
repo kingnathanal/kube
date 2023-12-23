@@ -13,24 +13,23 @@ spec:
     spec:
       containers:
       - name: spring-basic
-        image: kingnathanal/spring-basic:0.2.0
+        image: kingnathanal/spring-basic:0.2.1
         resources:
           limits:
             memory: "128Mi"
             cpu: "250m"
         ports:
         - containerPort: 8080
-      - name: logger-babe
-        image: busybox
-        resources: {}
-        command: ['sh', '-c', 'wget http://spring-basics:8080/']
+      #- name: logger-babe
+      #  image: nginx
+      #  resources: {}
+      #  command: ['sh', '-c', 'curl http://localhost:8080/']
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: spring-basics
 spec:
-  type: LoadBalancer
   selector:
     app: spring-basics
   ports:
